@@ -1,0 +1,32 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: api-b
+  namespace: demo
+spec:
+  replicas: 1
+  selector: { matchLabels: { app: api-b } }
+  template:
+    metadata: { labels: { app: api-b } }
+    spec:
+      containers:
+      - name: api-b
+        image: tiangolo/uvicorn-gunicorn-fastapi:python3.11
+        env:
+        - { name: MODULE_NAME, value: main }
+        - { name: VARIABLE_NAME, value: app }
+        - { name: PORT, value: "8000" }
+        ports: [{ containerPort: 8000 }]
+        volumeMounts:
+        - name: code
+          mountPath: /app
+        readinessProbe:
+          httpGet: { path: /health, port: 8000 }
+          initialDelaySeconds: 5
+          periodSeconds: 5
+      volumes:
+      - name: code
+        projected:
+          sources:
+          - configMap:
+              name: api-b-code

@@ -1,0 +1,38 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: demo-ingress
+  namespace: demo
+  annotations:
+    nginx.ingress.kubernetes.io/ssl-redirect: "false"
+    nginx.ingress.kubernetes.io/use-regex: "true"
+    nginx.ingress.kubernetes.io/rewrite-target: "/$2"
+spec:
+  ingressClassName: nginx
+  rules:
+  - http:
+      paths:
+      # Frontend giữ Prefix bình thường
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: frontend
+            port: { number: 80 }
+
+      # Regex -> bắt buộc dùng ImplementationSpecific
+      # /api/a/*  =>  /$2 (bỏ tiền tố /api/a)
+      - path: /api/a(/|$)(.*)
+        pathType: ImplementationSpecific
+        backend:
+          service:
+            name: api-a
+            port: { number: 80 }
+
+      # /api/b/*  =>  /$2 (bỏ tiền tố /api/b)
+      - path: /api/b(/|$)(.*)
+        pathType: ImplementationSpecific
+        backend:
+          service:
+            name: api-b
+            port: { number: 80 }

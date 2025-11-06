@@ -1,0 +1,39 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: frontend-html
+  namespace: demo
+data:
+  index.html: |
+    <!doctype html>
+    <html>
+    <head>
+      <meta charset="utf-8"/>
+      <title>K3s Microservices Demo</title>
+      <style>
+        body{font-family:system-ui,Arial;margin:40px;max-width:800px}
+        button{padding:10px 14px;margin:6px;border-radius:8px;border:1px solid #ccc;cursor:pointer}
+        pre{background:#111;color:#0f0;padding:12px;border-radius:8px;overflow:auto}
+      </style>
+    </head>
+    <body>
+      <h2>Frontend → API-A & API-B</h2>
+      <div>
+        <button onclick="callA()">Call API-A (/api/a)</button>
+        <button onclick="callAWork()">API-A /work</button>
+        <button onclick="callB()">Call API-B (/api/b)</button>
+        <button onclick="callBCalc()">API-B /calc?x=7&y=5</button>
+      </div>
+      <h3>Kết quả:</h3>
+      <pre id="out"></pre>
+      <script>
+        const out = document.getElementById('out');
+        async function j(u){const r=await fetch(u); return r.json();}
+        function log(o){out.textContent = JSON.stringify(o,null,2);}
+        async function callA(){ log(await j('/api/a/')); }
+        async function callAWork(){ log(await j('/api/a/work')); }
+        async function callB(){ log(await j('/api/b/')); }
+        async function callBCalc(){ log(await j('/api/b/calc?x=7&y=5')); }
+      </script>
+    </body>
+    </html>
