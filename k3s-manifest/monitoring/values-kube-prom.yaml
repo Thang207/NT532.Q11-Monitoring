@@ -1,0 +1,102 @@
+# values-kube-prom.yaml
+# ========== Global ==========
+fullnameOverride: kube-prom
+nameOverride: kube-prom
+
+# ========== Prometheus ==========
+prometheus:
+  prometheusSpec:
+    retention: 7d                # giữ dữ liệu 7 ngày
+    retentionSize: "10GB"        # hoặc giới hạn theo dung lượng
+    scrapeInterval: "30s"
+    evaluationInterval: "30s"
+    resources:
+      requests:
+        cpu: 200m
+        memory: 512Mi
+      limits:
+        cpu: 1000m
+        memory: 2Gi
+    storageSpec:
+      volumeClaimTemplate:
+        spec:
+          accessModes: ["ReadWriteOnce"]
+          resources:
+            requests:
+              storage: 10Gi      # chỉnh theo ổ đĩa node
+          # storageClassName: "" # để trống dùng mặc định của K3s (local-path)
+
+  service:
+    type: ClusterIP
+
+  ingress:
+    enabled: true
+    ingressClassName: nginx
+    annotations:
+      nginx.ingress.kubernetes.io/ssl-redirect: "false"
+    # Không có domain => dùng path-based
+    paths:
+      - /prometheus
+
+# ========== Alertmanager ==========
+alertmanager:
+  alertmanagerSpec:
+    resources:
+      requests:
+        cpu: 50m
+        memory: 128Mi
+  service:
+    type: ClusterIP
+  ingress:
+    enabled: true
+    ingressClassName: nginx
+    annotations:
+      nginx.ingress.kubernetes.io/ssl-redirect: "false"
+    paths:
+      - /alertmanager
+
+# ========== Grafana ==========
+grafana:
+  adminUser: admin
+  adminPassword: "admin123"      # đổi theo ý bạn
+  defaultDashboardsTimezone: Asia/Ho_Chi_Minh
+
+  service:
+    type: ClusterIP
+
+  ingress:
+    enabled: true
+    ingressClassName: nginx
+    annotations:
+      nginx.ingress.kubernetes.io/ssl-redirect: "false"
+    path: /grafana                # truy cập http://<IP>/grafana
+    pathType: Prefix
+
+  persistence:
+    enabled: true
+    type: pvc
+    size: 5Gi
+    accessModes: ["ReadWriteOnce"]
+    # storageClassName: ""       # để trống = mặc định (local-path)
+
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+    limits:
+      cpu: 500m
+      memory: 1Gi
+
+  # kube-prometheus-stack sẽ tự thêm data source Prometheus vào Grafana
+  sidecar:
+    dashboards:
+      enabled: true
+    datasources:
+      enabled: true
+
+# ========== kube-state-metrics & node-exporter (bắt buộc cho dashboard k8s) ==========
+kubeStateMetrics:
+  enabled: true
+
+nodeExporter:
+  enabled: true
