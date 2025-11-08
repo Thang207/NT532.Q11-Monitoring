@@ -12,22 +12,23 @@ spec:
   rules:
   - http:
       paths:
-      # Frontend giữ Prefix bình thường
+      # Frontend: CHỈ match đúng /
       - path: /
-        pathType: Prefix
+        pathType: Exact
         backend:
           service:
             name: frontend
-            port: { number: 80 }
+            port:
+              number: 80
 
-      # Regex -> bắt buộc dùng ImplementationSpecific
       # /api/a/*  =>  /$2 (bỏ tiền tố /api/a)
       - path: /api/a(/|$)(.*)
         pathType: ImplementationSpecific
         backend:
           service:
             name: api-a
-            port: { number: 80 }
+            port:
+              number: 80
 
       # /api/b/*  =>  /$2 (bỏ tiền tố /api/b)
       - path: /api/b(/|$)(.*)
@@ -35,4 +36,5 @@ spec:
         backend:
           service:
             name: api-b
-            port: { number: 80 }
+            port:
+              number: 80
