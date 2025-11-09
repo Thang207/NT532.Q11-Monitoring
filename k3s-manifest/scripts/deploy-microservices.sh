@@ -134,7 +134,8 @@ apply_all() {
 
   # 4) Ingress
   info "Áp dụng Ingress rules..."
-  apply_if_exists "$ING_DIR/demo-ingress.yaml"
+  apply_if_exists "$ING_DIR/frontend.yaml"
+  apply_if_exists "$ING_DIR/api-ingress.yaml"
 
   # 5) (Optional) HPA nếu có
   if [[ -d "$AUTO_DIR" ]]; then
@@ -154,7 +155,8 @@ delete_all() {
   need_bin "$KUBECTL_BIN"
 
   info "Xoá ingress..."
-  $KUBECTL_BIN delete -f "$ING_DIR/demo-ingress.yaml" --ignore-not-found
+  $KUBECTL_BIN delete -f "$ING_DIR/frontend.yaml" --ignore-not-found
+  $KUBECTL_BIN delete -f "$ING_DIR/api-ingress.yaml" --ignore-not-found
 
   info "Xoá frontend..."
   $KUBECTL_BIN delete -f "$FE_DIR/service.yaml" --ignore-not-found
