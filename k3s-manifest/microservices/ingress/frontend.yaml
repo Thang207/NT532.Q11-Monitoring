@@ -1,0 +1,19 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: frontend-ingress
+  namespace: demo
+  annotations:
+    nginx.ingress.kubernetes.io/ssl-redirect: "false"
+spec:
+  ingressClassName: nginx
+  rules:
+  - http:
+      paths:
+      - path: /
+        pathType: Prefix     # Prefix để SPA không lỗi khi refresh deep-link
+        backend:
+          service:
+            name: frontend
+            port:
+              number: 80      # khớp với Service frontend.spec.ports.port
